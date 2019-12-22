@@ -2,7 +2,7 @@ const request = require('request');
 const ak = require('../config/appkey');
 
 module.exports = {
-    searchPubTrasnPath : (SX, SY, EX, EY) => {
+    searchPubTransPath : (SX, SY, EX, EY) => {
         return new Promise((resolve,reject)=> {
             const options = {
                 'uri' : 'https://api.odsay.com/v1/api/searchPubTransPathR', 
