@@ -12,6 +12,8 @@
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
     "morgan": "~1.9.1",
+    "pbkdf2": "^3.0.17",
+    "promise-mysql": "^4.1.1",
     "request": "^2.88.0"
   }
 }
