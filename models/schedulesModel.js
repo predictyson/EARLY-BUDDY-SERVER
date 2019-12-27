@@ -129,5 +129,6 @@ module.exports = {
         const getSchedulesQuery = 'SELECT * FROM schedules WHERE scheduleIdx = ?';
         const getSchedulesNoticesQuery = 'SELECT * FROM schedulesNotices WHERE scheduleIdx = ?';
         const getSchedulesPathsQuery = 'SELECT * FROM schedulesPaths WHERE scheduleIdx=?';
+        //make develop
     }
 }
