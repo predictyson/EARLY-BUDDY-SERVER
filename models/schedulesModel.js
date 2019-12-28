@@ -1,9 +1,9 @@
 const odsayAPI = require('../module/odsayAPI');
-const ak = require('../config/appkey');
 const resUtil = require('../module/responseUtil');
 const resMsg = require('../module/resMsg');
 const statCode = require('../module/statusCode');
 const pool = require('../module/pool');
+const commonAPI = require('../module/commonAPI');
 
 module.exports = {
     addSchedule : async (scheduleName, scheduleStartTime, startAddress, startLongitude, startLatitude, endAddress, endLongitude, endLatitude) => {
@@ -30,9 +30,9 @@ module.exports = {
             
         })
     },
-    addPaths : async (pathType, totalTime, totalPay) => {
-        const addPathsQuery = 'INSERT INTO paths (pathType, totalTime, totalPay) VALUES (?,?,?)';
-        return await pool.queryParam_Arr(addPathsQuery, [pathType, totalTime, totalPay])
+    addPaths : async (pathType, totalTime, totalPay, totalWalkTime, transitCount) => {
+        const addPathsQuery = 'INSERT INTO paths (pathType, totalTime, totalPay, totalWalkTime, transitCount) VALUES (?,?,?,?,?)';
+        return await pool.queryParam_Arr(addPathsQuery, [pathType, totalTime, totalPay, totalWalkTime, transitCount])
         .catch((err)=> {
             console.log('addPaths err : ' + err);
             
@@ -94,9 +94,9 @@ module.exports = {
         })
     }
     ,
-    addBusDetail : async(trafficType, distance, sectionTime, stationCount, detailStartAddress, detailStartLongitude, detailStartLatitude, detailEndAddress, detailEndLongitude, detailEndLatitude, busNo)=>{
-        const addBusDetailQuery = 'INSERT INTO details (trafficType, distance, sectionTime, stationCount, detailStartAddress, detailStartLongitude, detailStartLatitude, detailEndAddress, detailEndLongitude, detailEndLatitude, busNo) VALUES (?,?,?,?,?,?,?,?,?,?,?)'; 
-        return await pool.queryParam_Arr(addBusDetailQuery, [trafficType, distance, sectionTime, stationCount, detailStartAddress, detailStartLongitude, detailStartLatitude, detailEndAddress, detailEndLongitude, detailEndLatitude, busNo])
+    addBusDetail : async(trafficType, distance, sectionTime, stationCount, detailStartAddress, detailStartLongitude, detailStartLatitude, detailEndAddress, detailEndLongitude, detailEndLatitude, busNo, busType)=>{
+        const addBusDetailQuery = 'INSERT INTO details (trafficType, distance, sectionTime, stationCount, detailStartAddress, detailStartLongitude, detailStartLatitude, detailEndAddress, detailEndLongitude, detailEndLatitude, busNo, busType) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)'; 
+        return await pool.queryParam_Arr(addBusDetailQuery, [trafficType, distance, sectionTime, stationCount, detailStartAddress, detailStartLongitude, detailStartLatitude, detailEndAddress, detailEndLongitude, detailEndLatitude, busNo, busType])
         .catch((err)=>{
             console.log('addBusDetail err : ' + err);
             
@@ -118,6 +118,26 @@ module.exports = {
             
         })
     },
+    getSubwayArriveTime : async (stationID, wayCode)=>{
+        return await odsayAPI.getSubwayArriveTime(stationID, wayCode)
+        .catch((err)=>{
+            console.log('getSubwayArriveTime err : ' + err);
+            return({
+                code : statCode.BAD_REQUEST,
+                json : resUtil.successFalse(resMsg.NULL_VALUE)
+            })
+        })
+    },
+    getBusArriveTime : async (stId, busRouteId, ord) => {
+        return await commonAPI.getBusArriveTime(stId, busRouteId, ord)
+        .catch((err)=>{
+            console.log('getBusArriveTime err : ' + err);
+            return({
+                code : statCode.BAD_REQUEST,
+                json : resUtil.successFalse(resMsg.NULL_VALUE)
+            })
+        })
+    },
     
     deleteSchedule : async (req, res) => {
         
@@ -129,7 +149,8 @@ module.exports = {
         const getSchedulesQuery = 'SELECT * FROM schedules WHERE scheduleIdx = ?';
         const getSchedulesNoticesQuery = 'SELECT * FROM schedulesNotices WHERE scheduleIdx = ?';
         const getSchedulesPathsQuery = 'SELECT * FROM schedulesPaths WHERE scheduleIdx=?';
-        //make develop
-        //make feature
+        const getPathsQuery = 'SELECT * FROM paths WHERE pathIdx = ?'
+        const getPathsDetailsQuery = 'SELECT * FROM pathsDetails WHERE pathIdx=?';
+        const getDetailsQuery = 'SELECT * FROM details WHERE '
     }
 }
