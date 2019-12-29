@@ -16,6 +16,7 @@
     "moment": "^2.24.0",
     "morgan": "~1.9.1",
     "promise-mysql": "^4.1.1",
-    "request": "^2.88.0"
+    "request": "^2.88.0",
+    "xml2js": "^0.4.23"
   }
 }
