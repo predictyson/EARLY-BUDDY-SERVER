@@ -1,9 +1,10 @@
 const ak = require('../config/appkey').common;
 const request = require('request');
 const convert = require('xml2js')
+const urlencode = require('urlencode');
 
 module.exports = {
-    getBusArriveTime : (stId, busRouteId, ord) => {
+    getBusArriveTime : (stId, busRouteId, ord) => { //버스 실시간 도착정보
         return new Promise((resolve, reject)=> {
             const options = {
                 'uri' : `http://ws.bus.go.kr/api/rest/arrive/getArrInfoByRoute?ServiceKey=${ak}&stId=${stId}&busRouteId=${busRouteId}&ord=${ord}`
@@ -19,7 +20,7 @@ module.exports = {
             })
         })
     },
-    getBusRouteList : (busNo) => {
+    getBusRouteList : (busNo) => { //버스 번호로 찾기
         return new Promise((resolve, reject)=>{
             const options  = {
                 "uri" : `http://ws.bus.go.kr/api/rest/busRouteInfo/getBusRouteList?ServiceKey=${ak}&strSrch=${busNo}`
@@ -35,7 +36,7 @@ module.exports = {
             })
         })
     },
-    getBusRouteInfo : (busRouteId) => {
+    getBusRouteInfo : (busRouteId) => { //버스 경로 ID로 정보 조회
         return new Promise((resolve, reject)=>{
             const options  = {
                 "uri" : `http://ws.bus.go.kr/api/rest/busRouteInfo/getRouteInfo?ServiceKey=${ak}&busRouteId=${busRouteId}`
@@ -51,7 +52,7 @@ module.exports = {
             })
         })
     },
-    getStationByRoute : (busRouteId) => { //노선 경로 목록 조회
+    getStationByRoute : (busRouteId) => { // 경로 ID 로 노선 경로 목록 조회
         return new Promise((resolve,reject)=>{
             const options = {
                 "uri" : `http://ws.bus.go.kr/api/rest/busRouteInfo/getStaionByRoute?ServiceKey=${ak}&busRouteId=${busRouteId}`
@@ -66,6 +67,38 @@ module.exports = {
             })
         })
     },
+    getStationByName : (stSrch) => {
+        return new Promise((resolve,reject)=>{
+            let stationName = urlencode(stSrch);
+            const options = {
+                "uri" : `http://ws.bus.go.kr/api/rest/stationinfo/getStationByName?ServiceKey=${ak}&stSrch=${stationName}`
+            }
+            request(options, (err, result)=>{
+                if(err) reject(err)
+                else {
+                    //console.log(result.body);
+                    convert.parseString(result.body, (err, result)=>{
+                        resolve(result.ServiceResult.msgBody[0].itemList);
+                    })
+                }
+            })
+        })
+    },
+    getBusTimeByStation : (arsId, busRouteId) => {
+        return new Promise((resolve,reject)=>{
+            const options = {
+                "uri" : `http://ws.bus.go.kr/api/rest/stationinfo/getBustimeByStation?ServiceKey=${ak}&arsId=${arsId}&busRouteId=${busRouteId}`
+            }
+            request(options, (err, result)=>{
+                if(err) reject(err)
+                else {
+                    convert.parseString(result.body, (err, result)=>{
+                        resolve(result.ServiceResult.msgBody[0].itemList);
+                    })
+                }
+            })
+        })
+    }
 
     
 }
