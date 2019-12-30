@@ -115,6 +115,7 @@ module.exports = {
             let noticeArr = [];
             let timeArray = [];
             if (isFirst == 1) {
+                console.log(moment(startTm).format('YYYY-MM-DD HH:mm:ss') + ' 은 ' + moment(leastTm).day() + '요일 입니다');
                 if (moment(leastTm).day() == 6) { //토요일
                     if(getSubwayArriveTimeResult.SatList.down === undefined) {
                         timeArray = getSubwayArriveTimeResult.SatList.up.time; 
@@ -139,19 +140,32 @@ module.exports = {
                         timeArray = getSubwayArriveTimeResult.OrdList.down.time;  
                     }
                 }
+                
                 for (var k = 0; k < timeArray.length; k++) {
                     //startTime 0 년도 1 월 2 일 3 몇시 4 몇분
                     if (timeArray[k].Idx == moment(leastTm).hour()) {
+                        console.log(timeArray[k].Idx + '시 입니다');
                         let minArr = timeArray[k].list.split(' ');
                         for (var j = 0; j < minArr.length; j++) {
                             if (moment(leastTm).minute() > Number(minArr[j].split('(')[0])) {
+                                console.log(Number(minArr[j].split('(')[0]) + ' 분 입니다.')
                                 arriveArr.push(moment(leastTm).minute(minArr[j].split('(')[0]).toString());
                                 noticeArr.push(moment(leastTm).minute(minArr[j].split('(')[0] - noticeMin).toString());
                             }
                         }
-
+                        console.log('arriveArr length : ' + arriveArr.length);
+                        if(arriveArr.length < arriveCount) {
+                            minArr = timeArray[k-1].list.split(' ');
+                            for(var l = minArr.length-1 ; l > minArr.length -1 - arriveCount ; l--) {
+                                arriveArr.push(moment(leastTm).subtract(1, 'hours').minute(minArr[l].split('(')[0]).toString());
+                                noticeArr.push(moment(leastTm).subtract(1, 'hours').minute(minArr[l].split('(')[0] - noticeMin).toString());
+                            }
+                        }
                     }
+                    
                 } //시간 작업
+                console.log(arriveArr.length);
+                console.log(noticeArr.length);
                 for (var i = 0; i < arriveCount; i++) {
                     await conn.query(addSchedulesNoticesQuery, [scheduleIdx, moment(arriveArr[arriveArr.length - 1 - i]).format('YYYY-MM-DD HH:mm:ss'), moment(noticeArr[noticeArr.length - 1 - i]).format('YYYY-MM-DD HH:mm:ss')])
                 }
