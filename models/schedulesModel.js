@@ -144,16 +144,13 @@ module.exports = {
                 for (var k = 0; k < timeArray.length; k++) {
                     //startTime 0 년도 1 월 2 일 3 몇시 4 몇분
                     if (timeArray[k].Idx == moment(leastTm).hour()) {
-                        console.log(timeArray[k].Idx + '시 입니다');
                         let minArr = timeArray[k].list.split(' ');
                         for (var j = 0; j < minArr.length; j++) {
                             if (moment(leastTm).minute() > Number(minArr[j].split('(')[0])) {
-                                console.log(Number(minArr[j].split('(')[0]) + ' 분 입니다.')
                                 arriveArr.push(moment(leastTm).minute(minArr[j].split('(')[0]).toString());
                                 noticeArr.push(moment(leastTm).minute(minArr[j].split('(')[0] - noticeMin).toString());
                             }
                         }
-                        console.log('arriveArr length : ' + arriveArr.length);
                         if(arriveArr.length < arriveCount) {
                             minArr = timeArray[k-1].list.split(' ');
                             for(var l = minArr.length-1 ; l > minArr.length -1 - arriveCount ; l--) {
@@ -164,8 +161,6 @@ module.exports = {
                     }
                     
                 } //시간 작업
-                console.log(arriveArr.length);
-                console.log(noticeArr.length);
                 for (var i = 0; i < arriveCount; i++) {
                     await conn.query(addSchedulesNoticesQuery, [scheduleIdx, moment(arriveArr[arriveArr.length - 1 - i]).format('YYYY-MM-DD HH:mm:ss'), moment(noticeArr[noticeArr.length - 1 - i]).format('YYYY-MM-DD HH:mm:ss')])
                 }
@@ -229,14 +224,57 @@ module.exports = {
 
             })
     },
-
-    deleteSchedule: async (req, res) => {
-
+    deleteSchedule : async (scheduleIdx) => {
+        const deleteStopsQuery = `DELETE FROM stops WHERE stops.stopIdx IN ( 
+            SELECT detailsStops.stopIdx FROM detailsStops WHERE detailsStops.detailIdx IN ( 
+                SELECT detailIdx FROM pathsDetails WHERE pathsDetails.pathIdx IN (
+                    SELECT scheduleIdx FROM schedulesPaths WHERE scheduleIdx = ? ) ) )`;
+        const deleteDetailsStopsQuery = `DELETE FROM detailsStops WHERE detailsStops.detailIdx IN ( 
+            SELECT pathsDetails.detailIdx FROM pathsDetails WHERE pathsDetails.pathIdx IN (
+                SELECT pathIdx FROM schedulesPaths WHERE schedulesPaths.scheduleIdx = ?) )`;
+        const deleteDetailQuery = `DELETE FROM details WHERE details.detailIdx IN (
+            SELECT pathsDetails.detailIdx FROM pathsDetails WHERE pathsDetails.pathIdx IN (
+                SELECT pathIdx FROM schedulesPaths WHERE schedulesPaths.scheduleIdx = ?) )`;
+        const deletePathsDetailsQuery = `DELETE FROM pathsDetails WHERE pathsDetails.pathIdx IN (
+            SELECT pathIdx FROM schedulesPaths WHERE schedulesPaths.scheduleIdx = ?)`;
+        const deletePathsQuery = `DELETE FROM paths WHERE paths.pathIdx IN (
+            SELECT pathIdx FROM schedulesPaths WHERE schedulesPaths.scheduleIdx = ?)`;
+        const deleteSchedulesPathQuery = `DELETE FROM paths WHERE paths.pathIdx IN (
+            SELECT pathIdx FROM schedulesPaths WHERE schedulesPaths.scheduleIdx = ?)`;
+        const deleteSchedulesNoticesQuery = `DELETE FROM paths WHERE paths.pathIdx IN (
+            SELECT pathIdx FROM schedulesPaths WHERE schedulesPaths.scheduleIdx = ?)`;
+        const deleteWeekdaysQuery = `DELETE FROM weekdays WHERE weekdays.scheduleIdx IN (
+            SELECT scheduleIdx FROM schedules WHERE schedules.scheduleIdx = ?)`;
+        const deleteSchedulesQuery = `DELETE FROM schedules WHERE scheduleIdx = ?`;
+        const deleteUserSchedulesQuery = `SELECT * FROM usersSchedules WHERE scheduleIdx = ?`;
+        const queryResult = [];
+        return await pool.Transaction(async (connection) => {
+            queryResult.push(await connection.query(deleteStopsQuery, scheduleIdx));
+            queryResult.push(await connection.query(deleteDetailsStopsQuery, scheduleIdx));
+            queryResult.push(await connection.query(deleteDetailQuery, scheduleIdx));
+            queryResult.push(await connection.query(deletePathsDetailsQuery, scheduleIdx));
+            queryResult.push(await connection.query(deletePathsQuery, scheduleIdx));
+            queryResult.push(await connection.query(deleteSchedulesPathQuery, scheduleIdx));
+            queryResult.push(await connection.query(deleteSchedulesNoticesQuery, scheduleIdx));
+            queryResult.push(await connection.query(deleteWeekdaysQuery, scheduleIdx));
+            queryResult.push(await connection.query(deleteSchedulesQuery, scheduleIdx));
+            queryResult.push(await connection.query(deleteUserSchedulesQuery, scheduleIdx));
+        }).then( async (result)=>{
+            return queryResult;
+        }).catch((err)=>{
+            console.log('delete err : ' + err);
+            throw err;
+        })
     },
-    updateSchedule: async (req, res) => {
-
-    },
-    getSchedules: async (scheduleIdx) => {
+    updateSchedule : async (scheduleIdx) => {
         
     },
+    getSchedules : async (scheduleIdx) => {
+        const getSchedulesQuery = `SELECT * FROM schedules LEFT JOIN schedulesPaths ON schedules.scheduleIdx = schedulesPaths.scheduleIdx
+        LEFT JOIN paths ON paths.pathIdx = schedulesPaths.pathIdx WHERE schedules.scheduleIdx = ?`;
+        return await pool.queryParam_Arr(getSchedulesQuery, [scheduleIdx])
+        .catch((err)=>{
+            console.log('getSchedulesQuery err : ' + err);
+        })
+    }
 }
