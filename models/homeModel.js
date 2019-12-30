@@ -1,6 +1,15 @@
 const pool = require('../module/pool');
 
 module.exports = {
+    verifyUser: async(userIdx) => {
+        const verifyUserQuery = `SELECT userIdx
+                                    From users
+                                    WHERE userIdx = '${userIdx}'`
+        return await pool.queryParam_Arr(verifyUserQuery, [userIdx])
+        .catch((err) => {
+            console.log('verifyUser err : ' + err)
+        })
+    },
     getUserSchedules : async (userIdx, currentTime) => {
         const getUserScheduleQuery = `SELECT s.scheduleIdx, s.scheduleStartTime
                                 From schedules s 

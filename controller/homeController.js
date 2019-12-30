@@ -102,6 +102,5 @@ module.exports = {
                 res.status(statusCode.OK).send(resUtil.successTrue(resMsg.GET_HOME_SCHEDULE_SUCCESS, data));
             }
         }
-        
     }
 }
