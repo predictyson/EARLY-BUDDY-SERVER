@@ -1,8 +1,11 @@
+
 const resUtil = require('../module/responseUtil');
 const resMsg = require('../module/resMsg');
 const statCode = require('../module/statusCode');
 const pool = require('../module/pool');
 const schedules = require('../models/schedulesModel');
+var moment = require('moment');
+
 
 module.exports = {
     addSchedule: async (req, res) => {
@@ -49,7 +52,10 @@ module.exports = {
                     stopArray = subPath[i].passStopList.stations; 
                     await schedules.addSubway(1, subPath[i].distance, subPath[i].sectionTime, subPath[i].stationCount, subPath[i].lane[0].subwayCode,subPath[i].startName, subPath[i].startX, subPath[i].startY, subPath[i].endName, subPath[i].endX, subPath[i].endY, stopArray,addPathsResult.insertId, stopArray[0].stationID, subPath[i].wayCode, startTime, addScheduleResult.insertId, body.noticeMin, body.arriveCount, 0);
                 }
-            }            
+            }
+            
+                        
+            
         } //stops ~ paths 추가
         if (body.weekdays !== undefined) {
             for (var i = 0; i < body.weekdays.length; i++) {
@@ -61,37 +67,13 @@ module.exports = {
         console.log('add schedule complete!');
         res.status(statCode.OK).send(resUtil.successTrue(resMsg.ADD_SCHEDULE_SUCCESS));
     },
-    getSchedule: async (req, res) => {
-        let scheduleIdx = req.query.scheduleIdx;
-        if (!scheduleIdx){
-            return res.status(statCode.BAD_REQUEST).send(resUtil.successFalse('scheduleIdx에 해당하는 '+resMsg.NULL_VALUE+'. 쿼리를 입력해주세요.'));
-        }
-        let getSchedulesResult = await schedules.getSchedules(scheduleIdx);
-        console.log('get schedule complete!');
-        if (getSchedulesResult.length == 0) {
-            return res.status(statCode.BAD_REQUEST).send(resUtil.successFalse('scheduleIdx에 해당하는 '+resMsg.INVALID_VALUE+' scheduleIdx값을 확인해주세요.'));
-        }
-        res.status(statCode.OK).send(resUtil.successTrue(resMsg.GET_SCHEDULE_SUCCESS, getSchedulesResult));
-    },
     deleteSchedule: async (req, res) => {
-        let scheduleIdx = req.query.scheduleIdx;
-        if (!scheduleIdx) {
-            return res.status(statCode.BAD_REQUEST).send(resUtil.successFalse('scheduleIdx에 해당하는 '+resMsg.NULL_VALUE+'. 쿼리를 입력해주세요.'));
-        }
-        const result = await schedules.deleteSchedule(scheduleIdx);
-        console.log('delete schedule complete!');
-        if (result[0].affectedRows == 0 ){
-            res.status(statCode.BAD_REQUEST).send(resUtil.successFalse(resMsg.NO_CHANGE));
-        } else {
-            res.status(statCode.OK).send(resUtil.successTrue(resMsg.DELETE_SCHEDULE_SUCCESS));
-        }
+
     },
     updateSchedule: async (req, res) => {
-        let scheduleIdx = req.query.scheduleIdx;
-        if (!scheduleIdx){
-            return res.status(statCode.BAD_REQUEST).send(resUtil.successFalse('scheduleIdx에 해당하는 '+resMsg.NULL_VALUE+'. 쿼리를 입력해주세요.'));
-        }
-         
 
+    },
+    getSchedule: async (req, res) => {
+        
     }
 }
