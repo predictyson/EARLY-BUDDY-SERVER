@@ -21,6 +21,7 @@ module.exports = {
                 if (path[i].subPath[j].trafficType === 3) {
                     totalWalkTime += path[i].subPath[j].sectionTime;
                 }
+                path[i].subPath[j].clicked = false;
             }
             path[i] = {
                 pathType: path[i].pathType,
