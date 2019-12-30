@@ -53,9 +53,11 @@ module.exports = {
                 var scheduleSummary = await schedules.getScheduleSummary(scheduleIdx);
                 var scheduleNoticeList = await schedules.getScheduleNotice(scheduleIdx);
             
+                console.log('scheduleNoticeList : ' + scheduleNoticeList.length);
                 // 남아있는 교통수단(trans) 개수 가져오기
                 for(var transCount = 0; transCount < scheduleNoticeList.length; transCount++){
-                    if(currentDate.getTime() - scheduleNoticeList[transCount].noticeTime > 0) break;
+                    let tempArriveDate = new Date(scheduleNoticeList[transCount].arriveTime);
+                    if(currentDate.getTime() - tempArriveDate.getTime() > 0) break;
                 }
 
                 // 화면에 보여줘야할 trans의 idx
@@ -64,13 +66,13 @@ module.exports = {
                 if(transCount == scheduleNoticeList.length)
                     currentTransIdx = transCount -1;
                 var nextTransArriveTime = null;
-                if(transCount != 0 )
+                if(transCount > 1 )
                     nextTransArriveTime = scheduleNoticeList[currentTransIdx-1].arriveTime;
 
-                console.log(scheduleSummary);
+                //console.log(scheduleSummary);
                 var scheduleSummaryData = scheduleSummary[0];
                 // notice 시간보다 더 전이면 ready는 false, schedule summary return 
-                if(gap/1000/60/60 > 50 || transCount < 0){
+                if(gap/1000/60/60 > 5 || transCount < 0){
                     var data = {
                         ready : false,
                         scheduleSummaryData
@@ -78,7 +80,7 @@ module.exports = {
                     res.status(statusCode.OK).send(resUtil.successTrue(resMsg.GET_HOME_SCHEDULE_SUCCESS, data));
                 }
                 var scheduleTransList = await schedules.getScheduleFirstTrans(scheduleIdx);
-                console.log(scheduleTransList);
+                //console.log(scheduleTransList);
 
                 var firstTransIdx = -1;
                 for(let i = 0; i < scheduleTransList.length; i++){
