@@ -3,26 +3,26 @@ const responseMessage = require('../module/responseMessage');
 const authUtil = require('../module/authUtil');
 const User = require('../model/user');
 const encrypt = require('../module/encryption');
+const express = require('express');
 
 module.exports = {
     //로그인
     signin  : async (req,res) =>{
         const {userId, userPw } = req.body;
         //아이디나 비번이 입력이 안됐다면
-        if(!userId || !userPW){
-            res.status(statusCode.BAD_REQUEST).send(authUtil.successFalse(responseMessage.NULL_VALUE));
+        if(!userId || !userPw){
+            await res.status(statusCode.BAD_REQUEST).send(authUtil.successFalse(responseMessage.NULL_VALUE)); 
         }
         try{
-            const {code, json} = User.signin({userId, userPw})
+            const {code, json} = await User.signin(userId, userPw)
             res.status(code).send(json)
-            // return await User.signin({userId, userPw})
         } catch (err) {
-            res.status(statusCode.INTERNAL_SERVER_ERROR).send(authUtil.successFalse(responseMessage.INTERNAL_SERVER_ERROR));
+            await res.status(statusCode.INTERNAL_SERVER_ERROR).send(authUtil.successFalse(responseMessage.INTERNAL_SERVER_ERROR));
         }
     },
     //회원가입
     signup : async (req,res) =>{
-        const {userName, userId, userPw, userBirth} = req.body;
+        const {userName, userId, userPw} = req.body;
         const missParameters = await Object.entries({userId, userPw}).filter(it=>it[1]==undefined).map(it=>it[0]).join(',');
         if(!userId || !userPw){
             await res.status(statusCode.BAD_REQUEST).send(authUtil.successFalse(`${responseMessage.NULL_VALUE} ${missParameters}`))
@@ -30,13 +30,10 @@ module.exports = {
         // 비밀번호 암호화 
         try{
             const {hashed, salt} = await encrypt.encrypt(userPw)
-            console.log("1");
-            const {code, json} =await User.signup({userId, userName, userBirth, salt, password:hashed})
-            console.log("2");
+            const {code, json} =await User.signup({userId, userName, salt, password:hashed})
             res.status(code).send(json);
-            console.log("3");
         }catch(err) {
-            res.status(statusCode.INTERNAL_SERVER_ERROR).send(authUtil.successFalse(responseMessage.INTERNAL_SERVER_ERROR));
+            await res.status(statusCode.INTERNAL_SERVER_ERROR).send(authUtil.successFalse(responseMessage.INTERNAL_SERVER_ERROR));
         }
     }
 
