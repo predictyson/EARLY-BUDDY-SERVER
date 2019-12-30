@@ -118,18 +118,57 @@ module.exports = {
             
         })
     },
-    
-    deleteSchedule : async (req, res) => {
-        
+    deleteSchedule : async (scheduleIdx) => {
+        const deleteStopsQuery = `DELETE FROM stops WHERE stops.stopIdx IN ( 
+            SELECT detailsStops.stopIdx FROM detailsStops WHERE detailsStops.detailIdx IN ( 
+                SELECT detailIdx FROM pathsDetails WHERE pathsDetails.pathIdx IN (
+                    SELECT scheduleIdx FROM schedulesPaths WHERE scheduleIdx = ? ) ) )`;
+        const deleteDetailsStopsQuery = `DELETE FROM detailsStops WHERE detailsStops.detailIdx IN ( 
+            SELECT pathsDetails.detailIdx FROM pathsDetails WHERE pathsDetails.pathIdx IN (
+                SELECT pathIdx FROM schedulesPaths WHERE schedulesPaths.scheduleIdx = ?) )`;
+        const deleteDetailQuery = `DELETE FROM details WHERE details.detailIdx IN (
+            SELECT pathsDetails.detailIdx FROM pathsDetails WHERE pathsDetails.pathIdx IN (
+                SELECT pathIdx FROM schedulesPaths WHERE schedulesPaths.scheduleIdx = ?) )`;
+        const deletePathsDetailsQuery = `DELETE FROM pathsDetails WHERE pathsDetails.pathIdx IN (
+            SELECT pathIdx FROM schedulesPaths WHERE schedulesPaths.scheduleIdx = ?)`;
+        const deletePathsQuery = `DELETE FROM paths WHERE paths.pathIdx IN (
+            SELECT pathIdx FROM schedulesPaths WHERE schedulesPaths.scheduleIdx = ?)`;
+        const deleteSchedulesPathQuery = `DELETE FROM paths WHERE paths.pathIdx IN (
+            SELECT pathIdx FROM schedulesPaths WHERE schedulesPaths.scheduleIdx = ?)`;
+        const deleteSchedulesNoticesQuery = `DELETE FROM paths WHERE paths.pathIdx IN (
+            SELECT pathIdx FROM schedulesPaths WHERE schedulesPaths.scheduleIdx = ?)`;
+        const deleteWeekdaysQuery = `DELETE FROM weekdays WHERE weekdays.scheduleIdx IN (
+            SELECT scheduleIdx FROM schedules WHERE schedules.scheduleIdx = ?)`;
+        const deleteSchedulesQuery = `DELETE FROM schedules WHERE scheduleIdx = ?`;
+        const deleteUserSchedulesQuery = `SELECT * FROM usersSchedules WHERE scheduleIdx = ?`;
+        const queryResult = [];
+        return await pool.Transaction(async (connection) => {
+            queryResult.push(await connection.query(deleteStopsQuery, scheduleIdx));
+            queryResult.push(await connection.query(deleteDetailsStopsQuery, scheduleIdx));
+            queryResult.push(await connection.query(deleteDetailQuery, scheduleIdx));
+            queryResult.push(await connection.query(deletePathsDetailsQuery, scheduleIdx));
+            queryResult.push(await connection.query(deletePathsQuery, scheduleIdx));
+            queryResult.push(await connection.query(deleteSchedulesPathQuery, scheduleIdx));
+            queryResult.push(await connection.query(deleteSchedulesNoticesQuery, scheduleIdx));
+            queryResult.push(await connection.query(deleteWeekdaysQuery, scheduleIdx));
+            queryResult.push(await connection.query(deleteSchedulesQuery, scheduleIdx));
+            queryResult.push(await connection.query(deleteUserSchedulesQuery, scheduleIdx));
+        }).then( async (result)=>{
+            return queryResult;
+        }).catch((err)=>{
+            console.log('delete err : ' + err);
+            throw err;
+        })
     },
-    updateSchedule : async (req, res) => {
+    updateSchedule : async (scheduleIdx) => {
         
     },
     getSchedules : async (scheduleIdx) => {
-        const getSchedulesQuery = 'SELECT * FROM schedules WHERE scheduleIdx = ?';
-        const getSchedulesNoticesQuery = 'SELECT * FROM schedulesNotices WHERE scheduleIdx = ?';
-        const getSchedulesPathsQuery = 'SELECT * FROM schedulesPaths WHERE scheduleIdx=?';
-        //make develop
-        //make feature
+        const getSchedulesQuery = `SELECT * FROM schedules LEFT JOIN schedulesPaths ON schedules.scheduleIdx = schedulesPaths.scheduleIdx
+        LEFT JOIN paths ON paths.pathIdx = schedulesPaths.pathIdx WHERE schedules.scheduleIdx = ?`;
+        return await pool.queryParam_Arr(getSchedulesQuery, [scheduleIdx])
+        .catch((err)=>{
+            console.log('getSchedulesQuery err : ' + err);
+        })
     }
 }
