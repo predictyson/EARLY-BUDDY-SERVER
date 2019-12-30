@@ -1,7 +1,7 @@
-const firebaseUtil = require('../module/firebase');
-const util = require('../module/responseUtil');
-const responseMessage = require('../module/resMsg');
-const statusCode = require('../module/statusCode');
+const firebaseUtil = require('../../module/firebase');
+const util = require('../../module/responseUtil');
+const responseMessage = require('../../module/resMsg');
+const statusCode = require('../../module/statusCode');
 
 module.exports = {
     send: async (req, res) => {
@@ -12,11 +12,11 @@ module.exports = {
             const missValue = Object.entries({registerToken, alarmFlag})
             .filter(it => it[1] == undefined).map(it => it[0]).join(',');
             res.status(statusCode.BAD_REQUEST)
-            .send(util.successFalse(statusCode.BAD_REQUEST, missValue +'에 해당하는 '+responseMessage.NULL_VALUE));
+            .send(util.successFalse(missValue +'에 해당하는 '+responseMessage.NULL_VALUE));
             return;
         }
         if ( alarmFlag < 0 || alarmFlag > 3) {
-            res.status(statusCode.BAD_REQUEST).send(util.successFalse(statusCode.BAD_REQUEST, responseMessage.WRONG_FLAG));
+            res.status(statusCode.BAD_REQUEST).send(util.successFalse(responseMessage.WRONG_FLAG));
             return;
         }
         try {
