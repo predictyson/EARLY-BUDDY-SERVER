@@ -14,5 +14,18 @@ module.exports = {
                 }
             })
         })
+    },
+    getSubwayArriveTime : (stationID, wayCode) => {
+        return new Promise((resolve, reject)=> {
+            const options = {
+                'uri' : `https://api.odsay.com/v1/api/subwayTimeTable?apiKey=${ak.odsay}&stationID=${stationID}&wayCode=${wayCode}`
+            }
+            request(options, (err,result)=>{
+                if(err) reject(err);
+                else {
+                    resolve(JSON.parse(result.body).result);
+                }
+            })
+        })
     }
 }
