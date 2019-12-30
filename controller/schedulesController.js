@@ -1,4 +1,3 @@
-
 const resUtil = require('../module/responseUtil');
 const resMsg = require('../module/resMsg');
 const statCode = require('../module/statusCode');
@@ -16,7 +15,7 @@ module.exports = {
         let startDay = Number(body.scheduleStartTime.split(' ')[0].split('-')[2]);
         let startHour = Number(body.scheduleStartTime.split(' ')[1].split(':')[0]);
         let startMin = Number(body.scheduleStartTime.split(' ')[1].split(':')[1]);
-        let startTime = [startYear,startMonth,startDay,startHour,startMin];
+        let startTime = [startYear, startMonth, startDay, startHour, startMin];
         let isBusFirst = 0;
         let isSubwayFirst = 0;
         let addScheduleResult = await schedules.addSchedule(body.scheduleName, body.scheduleStartTime, body.startAddress, body.startLongitude, body.startLatitude, body.endAddress, body.endLongitude, body.endLatitude);
@@ -67,13 +66,35 @@ module.exports = {
         console.log('add schedule complete!');
         res.status(statCode.OK).send(resUtil.successTrue(resMsg.ADD_SCHEDULE_SUCCESS));
     },
+    getSchedule: async (req, res) => {
+        let scheduleIdx = req.query.scheduleIdx;
+        if (!scheduleIdx){
+            return res.status(statCode.BAD_REQUEST).send(resUtil.successFalse('scheduleIdx에 해당하는 '+resMsg.NULL_VALUE+'. 쿼리를 입력해주세요.'));
+        }
+        let getSchedulesResult = await schedules.getSchedules(scheduleIdx);
+        console.log('get schedule complete!');
+        if (getSchedulesResult.length == 0) {
+            return res.status(statCode.BAD_REQUEST).send(resUtil.successFalse('scheduleIdx에 해당하는 '+resMsg.INVALID_VALUE+' scheduleIdx값을 확인해주세요.'));
+        }
+        res.status(statCode.OK).send(resUtil.successTrue(resMsg.GET_SCHEDULE_SUCCESS, getSchedulesResult));
+    },
     deleteSchedule: async (req, res) => {
-
+        let scheduleIdx = req.query.scheduleIdx;
+        if (!scheduleIdx) {
+            return res.status(statCode.BAD_REQUEST).send(resUtil.successFalse('scheduleIdx에 해당하는 '+resMsg.NULL_VALUE+'. 쿼리를 입력해주세요.'));
+        }
+        const result = await schedules.deleteSchedule(scheduleIdx);
+        console.log('delete schedule complete!');
+        if (result[0].affectedRows == 0 ){
+            res.status(statCode.BAD_REQUEST).send(resUtil.successFalse(resMsg.NO_CHANGE));
+        } else {
+            res.status(statCode.OK).send(resUtil.successTrue(resMsg.DELETE_SCHEDULE_SUCCESS));
+        }
     },
     updateSchedule: async (req, res) => {
-
-    },
-    getSchedule: async (req, res) => {
-        
+        let scheduleIdx = req.query.scheduleIdx;
+        if (!scheduleIdx){
+            return res.status(statCode.BAD_REQUEST).send(resUtil.successFalse('scheduleIdx에 해당하는 '+resMsg.NULL_VALUE+'. 쿼리를 입력해주세요.'));
+    }
     }
 }
