@@ -5,7 +5,6 @@ module.exports = {
         const verifyUserQuery = `SELECT userIdx
                                     From users
                                     WHERE userIdx = '${userIdx}'`
-        return await pool.queryParam_Arr(verifyUserQuery, [userIdx])
         .catch((err) => {
             console.log('verifyUser err : ' + err)
         })
