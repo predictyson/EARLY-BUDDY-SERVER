@@ -4,5 +4,6 @@ module.exports = {
     FIND_PATH_FAILED : '경로 찾기 실패',
     ADD_SCHEDULE_SUCCESS : '일정 추가 성공',
 
-    GET_HOME_SCHEDULE_SUCCESS: '홈 화면 일정 조회 성공'
+    GET_HOME_SCHEDULE_SUCCESS: '홈 화면 일정 조회 성공',
+    FIND_TRANS_FAILED : '경로에 교통수단이 없습니다'
 }

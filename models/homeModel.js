@@ -21,12 +21,23 @@ module.exports = {
         })
     },
     getScheduleNotice : async (scheduleIdx) => {
-        const getScheduleNoticeTime = `SELECT sn.noticeTime, sn.arriveTime
+        const getScheduleNoticeTimeQuery = `SELECT sn.noticeTime, sn.arriveTime
                                         From schedulesNotices sn
                                         WHERE sn.scheduleIdx = '${scheduleIdx}'`
-        return await pool.queryParam_Arr(getScheduleNoticeTime, [scheduleIdx])
+        return await pool.queryParam_Arr(getScheduleNoticeTimeQuery, [scheduleIdx])
         .catch((err) => {
             console.log('getScheduleNoticeTime err : '+ err)
+        })
+    },
+    getScheduleFirstTrans : async (scheduleIdx) => {
+        const getScheduleFirstTransQuery =  `SELECT d.detailIdx, d.trafficType, d.subwayLane, d.busNo, d.busType, d.detailStartAddress
+                                                From details d
+                                                INNER JOIN pathsDetails pd ON d.detailIdx = pd.detailIdx
+                                                INNER JOIN schedulesPaths sp ON pd.pathIdx = sp.pathIdx
+                                                WHERE sp.scheduleIdx = '${scheduleIdx}'`
+        return await pool.queryParam_Arr(getScheduleFirstTransQuery, [scheduleIdx])
+        .catch((err) =>{
+            console.log('getScheduleFirstTrans err : '+err)
         })
     }
 }
