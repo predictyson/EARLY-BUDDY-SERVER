@@ -1,14 +1,6 @@
 const pool = require('../module/pool');
 
 module.exports = {
-    verifyUser: async(userIdx) => {
-        const verifyUserQuery = `SELECT userIdx
-                                    From users
-                                    WHERE userIdx = '${userIdx}'`
-        .catch((err) => {
-            console.log('verifyUser err : ' + err)
-        })
-    },
     getUserSchedules : async (userIdx, currentTime) => {
         const getUserScheduleQuery = `SELECT s.scheduleIdx, s.scheduleStartTime
                                 From schedules s 
@@ -32,6 +24,8 @@ module.exports = {
         const getScheduleNoticeTimeQuery = `SELECT sn.noticeTime, sn.arriveTime
                                         From schedulesNotices sn
                                         WHERE sn.scheduleIdx = '${scheduleIdx}'`
+
+        // 혹시 모르니, arriveTime이 늦는 순서로 orderBy
         return await pool.queryParam_Arr(getScheduleNoticeTimeQuery, [scheduleIdx])
         .catch((err) => {
             console.log('getScheduleNoticeTime err : '+ err)
