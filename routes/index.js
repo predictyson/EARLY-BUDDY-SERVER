@@ -10,6 +10,7 @@ router.use('/users', require('./users'));
 router.use('/schedules', require('./schedules'));
 router.use('/calenders', require('./calenders'));
 router.use('/searchPath', require('./searchPath'));
+router.use('/home', require('./home'));
 
 
 module.exports = router;
