@@ -28,7 +28,9 @@ module.exports = {
         const addPathsDetailsQuery = 'INSERT INTO pathsDetails (pathIdx, detailIdx) VALUES (?,?)';//RT
         return await pool.Transaction(async (conn) => {
             let addWalkDetailResult = await conn.query(addWalkDetailQuery, [trafficType, distance, sectionTime]);
-            let addWalkPathsDetailsResult=await conn.query(addPathsDetailsQuery, [pathIdx, addWalkDetailResult.insertId]);
+            let addWalkPathsDetailsResult = await conn.query(addPathsDetailsQuery, [pathIdx, addWalkDetailResult.insertId]);
+            console.log('걷기');
+            console.log('============');
         })
     },
     addBus: async (trafficType, distance, sectionTime, stationCount, detailStartAddress, detailStartLongitude, detailStartLatitude, detailEndAddress, detailEndLongitude, detailEndLatitude, busNo, busType, stopArray, pathIdx, startTime, scheduleIdx, noticeMin, arriveCount, isFirst) => {
@@ -88,6 +90,8 @@ module.exports = {
                     let addBusDetailsStopsResult = await conn.query(addBusDetailsStopsQuery, [addBusDetailResult.insertId, addBusStopsResult.insertId]);
                 }
                 await conn.query(addPathsDetailsQuery, [pathIdx, addBusDetailResult.insertId])
+                console.log('버스');
+                console.log('============');
             })
                 .catch((err) => {
                     console.log('addBus err : ' + err);
@@ -96,6 +100,7 @@ module.exports = {
                         json: resUtil.successFalse(resMsg.NULL_VALUE)
                     })
                 })
+                
         }
         else {
             return await pool.Transaction(async (conn) => {
@@ -105,6 +110,8 @@ module.exports = {
                     let addBusDetailsStopsResult = await conn.query(addBusDetailsStopsQuery, [addBusDetailResult.insertId, addBusStopsResult.insertId]);
                 }
                 let addBusPathsDetailsResult = await conn.query(addPathsDetailsQuery, [pathIdx, addBusDetailResult.insertId]);
+                console.log('버스');
+                console.log('============');
             })
                 .catch((err) => {
                     console.log('addBus err : ' + err);
@@ -126,7 +133,7 @@ module.exports = {
             let startTm = moment().year(startTime[0]).month(startTime[1] - 1).date(startTime[2]).hour(startTime[3]).minute(startTime[4]);
             let leastTm = startTm.subtract(sectionTime, 'm').toString();
             let getSubwayArriveTimeResult = await odsayAPI.getSubwayArriveTime(stationID, wayCode);
-            if(getSubwayArriveTimeResult === undefined) {
+            if (getSubwayArriveTimeResult === undefined) {
                 return ({
                     code: statCode.BAD_REQUEST,
                     json: resUtil.successFalse(resMsg.FIND_SUBWAY_TIME_FAILED)
@@ -188,6 +195,8 @@ module.exports = {
                     let addSubwayDetailsStopsResult = await conn.query(addSubwayDetailsStopsQuery, [addSubwayDetailResult.insertId, addSubwayStopsResult.insertId]);
                 }
                 let addSubwayPathsDetailsResult = await conn.query(addPathsDetailsQuery, [pathIdx, addSubwayDetailResult.insertId]);
+                console.log('지하철');
+                console.log('============');
             })
         }
         else {
@@ -198,6 +207,8 @@ module.exports = {
                     let addSubwayDetailsStopsResult = await conn.query(addSubwayDetailsStopsQuery, [addSubwayDetailResult.insertId, addSubwayStopsResult.insertId]);
                 }
                 await conn.query(addPathsDetailsQuery, [pathIdx, addSubwayDetailResult.insertId]);
+                console.log('지하철');
+                console.log('============');
             })
         }
     },
