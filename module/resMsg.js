@@ -8,9 +8,13 @@ module.exports = {
 
     // 일정
     ADD_SCHEDULE_SUCCESS: '일정 추가 성공',
+    ADD_SCHEDULE_FAILED : '일정 추가 실패',
     GET_SCHEDULE_SUCCESS: '일정 조회 성공',
     DELETE_SCHEDULE_SUCCESS: '일정 삭제 성공',
     UPDATE_SCHEDULE_SUCCESS: '일정 수정 성공',
+    //시간
+    FIND_BUS_TIME_FAILED : '버스 시간 찾기 실패',
+    FIND_SUBWAY_TIME_FAILED : '지하철 시간 찾기 실패',
 
     // 알림 전송 메세지
     SEND_MESSAGE_SUCCESS: '알림 전송에 성공하였습니다.',
