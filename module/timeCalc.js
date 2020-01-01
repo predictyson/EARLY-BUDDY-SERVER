@@ -1,6 +1,8 @@
 const commonAPI = require('./commonAPI');
 const odsayAPI = require('./odsayAPI');
-
+const statCode = require('./statusCode');
+const resMsg = require('./resMsg');
+const resUtil = require('./responseUtil');
 module.exports = {
     busTime: async (busNo, startTm, stationName, arriveCount, noticeMin ,sectionTime) => {
         console.log('BUS FIRST');
@@ -19,7 +21,7 @@ module.exports = {
         if (getBusTimeByStationResult === undefined) {
             return ({
                 code: statCode.BAD_REQUEST,
-                json: resMsg.FIND_BUS_TIME_FAILED
+                json: resUtil.successFalse(resMsg.FIND_BUS_TIME_FAILED)
             })
         }
         let firstBusHour = Number((getBusTimeByStationResult[0].firstBusTm[0].split(''))[0] + (getBusTimeByStationResult[0].firstBusTm[0].split(''))[1]);
@@ -30,7 +32,6 @@ module.exports = {
         let arriveArr = [];
         let arriveArrRes = [];
         let noticeArrRes = [];
-
         if (moment(leastTm).hour() < firstBusHour && moment(leastTm).hour() > lastBusHour) {
             console.log('새벽이라 차 없어요');
         }

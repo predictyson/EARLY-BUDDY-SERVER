@@ -6,7 +6,7 @@ const schedules = require('../models/schedulesModel');
 const odsayAPI = require('../module/odsayAPI');
 const timeCalc = require('../module/timeCalc');
 var moment = require('moment');
-
+const alarm = require('../module/alarm');
 
 module.exports = {
     addSchedule: async (req, res) => {
@@ -122,5 +122,13 @@ module.exports = {
         if (!scheduleIdx) {
             return res.status(statCode.BAD_REQUEST).send(resUtil.successFalse('scheduleIdx에 해당하는 ' + resMsg.NULL_VALUE + '. 쿼리를 입력해주세요.'));
         }
+        let getSchedulesResult = await schedules.getSchedules(scheduleIdx);
+        console.log('get schedule complete!');
+        if (getSchedulesResult.length == 0) {
+            return res.status(statCode.BAD_REQUEST).send(resUtil.successFalse('scheduleIdx에 해당하는 ' + resMsg.INVALID_VALUE + ' scheduleIdx값을 확인해주세요.'));
+        }
+        // add 코드 -> return insertId
+        // delete 코드
+        // delete 에서 에러 나면 add 해서 반환한 idx 찾아 삭제하기
     }
 }
