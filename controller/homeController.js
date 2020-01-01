@@ -30,7 +30,6 @@ module.exports = {
             // 현재시간
             var moment = require('moment');
             require('moment-timezone');
-            moment.tz.setDefault("Asia/Seoul");
             console.log(moment().format('YYYY-MM-DD HH:mm:ss'));
 
             // user에게 할당된 스케쥴 받아와서 일정시간이 지금 시간보다 뒤에 있는 일정이 있는지 검사
