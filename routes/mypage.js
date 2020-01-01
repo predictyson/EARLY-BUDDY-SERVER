@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const myPageController = require('../controller/mypageController');
+const myPageController = require('../controller/myPageController');
 
 router.post('/changeNickName', myPageController.changeNickName);
-router.post('/outputId', mypageController.outputId);
-router.post('/changePw', mypageController.changePw);
-router.post('/changeFavorite',mypageController.changeFavorite);
-router.post('/withdrawal', mypageController.withdrawal);
+router.post('/getUserId', myPageController.outputId);
+router.post('/changePw', myPageController.changePw);
+router.post('/changeFavorite',myPageController.changeFavorite);
+router.post('/withdrawal', myPageController.withdrawal);

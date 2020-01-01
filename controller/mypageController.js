@@ -1,7 +1,7 @@
 const statusCode = require('../module/statusCode');
 const resMsg = require('../module/resMsg');
 const responseUtil = require('../module/responseUtil');
-const User = require('../model/mypage');
+const User = require('../model/myPage');
 const express = require('express');
 
 module.exports = {
@@ -12,7 +12,7 @@ module.exports = {
             await res.status(statusCode.BAD_REQUEST).send(authUtil.successFalse(resMsg.NULL_VALUE)); 
         }
         try{
-            const {code, json} = await mypage.changeNickName(userId)
+            const {code, json} = await myPage.changeNickName(userId)
             res.status(code).send(json)
         } catch (err) {
             await res.status(statusCode.INTERNAL_SERVER_ERROR).send(authUtil.successFalse(resMsg.INTERNAL_SERVER_ERROR));
@@ -20,12 +20,12 @@ module.exports = {
     },
     // 2. 아이디 출력
     outputId : async (req,res) =>{
-        const {userIdx, userId} = req.body;
+        const {userIdx} = req.body;
         if(!userIdx || !userId){
             await res.status(statusCode.BAD_REQUEST).send(authUtil.successFalse(resMsg.NULL_VALUE));
         }
         try{
-            const {code, json} = await mypage.outputId(userId)
+            const {code, json} = await myPage.outputId(userId)
             res.status(code).send(json)
         } catch (err){
             await res.status(statusCode.INTERNAL_SERVER_ERROR).send(authUtil.successFalse(resMsg.INTERNAL_SERVER_ERROR));
@@ -38,20 +38,21 @@ module.exports = {
             await res.status(statusCode.BAD_REQUEST).send(authUtil.successFalse(resMsg.NULL_VALUE));
         }
         try{
-            const {code, json} = await mypage.changePw(userPw)
+            const {code, json} = await myPage.changePw(userPw)
             res.status(code).send(json)
         } catch(err){
             await res.status(status.INTERNAL_SERVER_ERROR).send(authUtil.successFalse(resMsg.INTERNAL_SERVER_ERROR));
         }
     },
     // 4. 자주가는 장소 수정
+    // 술먹기 -> 책 읽기
     changeFavorite : async (req, res) =>{
-        const {userFavoriteIdx} = req.body;
+        const {userIdx, userFavoriteIdx} = req.body;
         if(! userFavoriteIdx){
             await res.status(statusCode.BAD_REQUEST).send(authUtil.successFalse(resMsg.NULL_VALUE));
         }
         try{
-            const {code, json} =  await mypage.changeFavorite(favoriteIdx)
+            const {code, json} =  await myPage.changeFavorite(favoriteIdx)
             res.status(code).send(json)
         } catch (err){
             await res.status(status.INTERNAL_SERVER_ERROR).send(authUtil.successFalse(resMsg.INTERNAL_SERVER_ERROR));
@@ -64,7 +65,7 @@ module.exports = {
             await res.status(statusCode.BAD_REQUEST).send(authUtil.successFalse(resMsg));
         }
         try{
-            const {code, json} = await mypage.withdrawal(userIdx)
+            const {code, json} = await myPage.withdrawal(userIdx)
             res.status(code).send(json)
         } catch(err){
             await res.status(status.INTERNAL_SERVER_ERROR).send(authUtil.successFalse(resMsg.INTERNAL_SERVER_ERROR));
