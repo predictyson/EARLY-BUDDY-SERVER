@@ -6,6 +6,7 @@ const pool = require('../module/pool');
 const commonAPI = require('../module/commonAPI');
 const seoulAPI = require('../module/seoulAPI');
 var moment = require('moment');
+const Alarm = require('../module/alarm');
 
 module.exports = {
     addSchedule: async (scheduleName, scheduleStartTime, startAddress, startLongitude, startLatitude, endAddress, endLongitude, endLatitude) => {
@@ -143,6 +144,7 @@ module.exports = {
             })
     },
     deleteSchedule : async (scheduleIdx) => {
+        const selectNoticeName = `SELECT noticeName FROM schedulesNotices WHERE scheduleIdx = ?`
         const deleteStopsQuery = `DELETE FROM stops WHERE stops.stopIdx IN ( 
             SELECT detailsStops.stopIdx FROM detailsStops WHERE detailsStops.detailIdx IN ( 
                 SELECT detailIdx FROM pathsDetails WHERE pathsDetails.pathIdx IN (
@@ -166,7 +168,9 @@ module.exports = {
         const deleteSchedulesQuery = `DELETE FROM schedules WHERE scheduleIdx = ?`;
         const deleteUserSchedulesQuery = `SELECT * FROM usersSchedules WHERE scheduleIdx = ?`;
         const queryResult = [];
+        const deleteNoticeNames = [];
         return await pool.Transaction(async (connection) => {
+            await connection.query(selectNoticeName, scheduleIdx);
             queryResult.push(await connection.query(deleteStopsQuery, scheduleIdx));
             queryResult.push(await connection.query(deleteDetailsStopsQuery, scheduleIdx));
             queryResult.push(await connection.query(deleteDetailQuery, scheduleIdx));
@@ -178,6 +182,7 @@ module.exports = {
             queryResult.push(await connection.query(deleteSchedulesQuery, scheduleIdx));
             queryResult.push(await connection.query(deleteUserSchedulesQuery, scheduleIdx));
         }).then(async (result) => {
+            await Alarm.deleteAlarm(deleteNoticeNames);
             return queryResult;
         }).catch((err) => {
             console.log('delete err : ' + err);
