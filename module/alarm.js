@@ -4,7 +4,9 @@ var schedule = require('node-schedule');
 
 // Date (year, month, date?, hours?, minutes?, seconds?, ms?) => Date
 const alarm = {
-    setSchedule: async (registerToken, dates) => {
+    setSchedule: async (scheduleIdxs, registerToken, dates) => {
+        console.log('asdfasdf');
+        const scheduleNames = [];
         for (var i = 0; i < dates.length; i++) {
             let year = Number(dates[i].split(' ')[0].split('-')[0]);
             let month = Number(dates[i].split(' ')[0].split('-')[1]);
@@ -12,12 +14,15 @@ const alarm = {
             let hour = Number(dates[i].split(' ')[1].split(':')[0]);
             let min = Number(dates[i].split(' ')[1].split(':')[1]);
             var date = new Date(year, month, day, hour, min);
-            schedule.scheduleJob(date, function () {
+            const scheduleModel = await schedule.scheduleJob(date, function () {
                 alarm.message(registerToken, dates[i].length - i);
             });
+            await scheduleNames.push(scheduleModel.name);
         }
+        console.log("scheduledJobs  : ", schedule.scheduledJobs);
+        return scheduleNames;
     },
-    message: async (target_token, alarmFlag) => {
+    message: async (registerToken, alarmFlag) => {
         var title = "얼리버디";
         var body = "이제 남은 버스는 " + alarmFlag + "대야! ";
 
@@ -50,7 +55,7 @@ const alarm = {
             }
         };
 
-        admin.messaging().sendToDevice(target_token, payload, options).then(function (response) {
+        admin.messaging().sendToDevice(registerToken, payload, options).then(function (response) {
             console.log('성공 메세지!' + response);
         }).catch(function (error) {
             console.log('보내기 실패 : ', error);
