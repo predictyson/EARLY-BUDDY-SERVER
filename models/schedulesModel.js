@@ -135,7 +135,14 @@ module.exports = {
 
             })
     },
-    deleteSchedule: async (scheduleIdx) => {
+    getDeviceToken: async(userIdx) => {
+        const getDeviceToken = `SELECT deviceToken FROM users WHERE userIdx = ?`
+        return await pool.queryParam_Arr(getDeviceToken, [userIdx])
+            .catch((err) => {
+                console.log('getDeviceToken err : ' + err);
+            })
+    },
+    deleteSchedule : async (scheduleIdx) => {
         const deleteStopsQuery = `DELETE FROM stops WHERE stops.stopIdx IN ( 
             SELECT detailsStops.stopIdx FROM detailsStops WHERE detailsStops.detailIdx IN ( 
                 SELECT detailIdx FROM pathsDetails WHERE pathsDetails.pathIdx IN (

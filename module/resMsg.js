@@ -1,8 +1,12 @@
 module.exports = {
     NULL_VALUE: '입력되지 않은 값이 있습니다',
     INVALID_VALUE: '값이 유효하지 않습니다.',
+<<<<<<< HEAD
+    NO_CHANGE: '변경된 사항이 없습니다.',
+=======
     NO_CHANGE: '변경된 사항이 없습니다. scheduleIdx를 의심해보세요.',
 
+>>>>>>> origin/develop
     FIND_PATH_COMPLETE: '경로 찾기 성공',
     FIND_PATH_FAILED: '경로 찾기 실패',
 
