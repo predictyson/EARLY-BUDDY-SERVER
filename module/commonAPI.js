@@ -22,6 +22,7 @@ module.exports = {
     },
     getBusRouteList : (busNo) => { //버스 번호로 찾기
         return new Promise((resolve, reject)=>{
+            console.log(ak);
             const options  = {
                 "uri" : `http://ws.bus.go.kr/api/rest/busRouteInfo/getBusRouteList?ServiceKey=${ak}&strSrch=${busNo}`
             }
@@ -29,7 +30,9 @@ module.exports = {
                 if(err) reject(err)
                 else {
                     convert.parseString(result.body, (err, result)=>{
-                        //console.log(result.ServiceResult.msgBody[0].itemList);
+                        console.log(result.ServiceResult);
+                        console.log(result.ServiceResult.msgHeader[0]);
+                        console.log(result.ServiceResult.msgHeader[0].headerMsg)
                         resolve(result.ServiceResult.msgBody[0].itemList);
                     })
                 }

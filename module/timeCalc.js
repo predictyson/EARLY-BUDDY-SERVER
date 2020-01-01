@@ -1,10 +1,19 @@
 const commonAPI = require('./commonAPI');
 const odsayAPI = require('./odsayAPI');
-
+const statCode = require('./statusCode');
+const resMsg = require('./resMsg');
+const resUtil = require('./responseUtil');
 module.exports = {
     busTime: async (busNo, startTm, stationName, arriveCount, noticeMin ,sectionTime) => {
         console.log('BUS FIRST');
         let getBusRouteListResult = await commonAPI.getBusRouteList(Number(busNo));
+        console.log(getBusRouteListResult);
+        if(getBusRouteListResult === undefined) {
+            return({
+                code: statCode.BAD_REQUEST,
+                json: resUtil.successFalse(resMsg.FIND_BUS_TIME_FAILED)
+            })
+        }
         let busRouteId = 0;
         for (var k = 0; k < getBusRouteListResult.length; k++) {
             if (busNo == getBusRouteListResult[k].busRouteNm[0]) {
@@ -19,14 +28,14 @@ module.exports = {
         if (getBusTimeByStationResult === undefined) {
             return ({
                 code: statCode.BAD_REQUEST,
-                json: resMsg.FIND_BUS_TIME_FAILED
+                json: resUtil.successFalse(resMsg.FIND_BUS_TIME_FAILED)
             })
         }
         let firstBusHour = Number((getBusTimeByStationResult[0].firstBusTm[0].split(''))[0] + (getBusTimeByStationResult[0].firstBusTm[0].split(''))[1]);
         let firstBusMin = Number(((getBusTimeByStationResult[0].firstBusTm[0]).split(''))[2] + ((getBusTimeByStationResult[0].firstBusTm[0]).split(''))[3]);
         let lastBusHour = Number(((getBusTimeByStationResult[0].lastBusTm[0]).split(''))[0] + ((getBusTimeByStationResult[0].lastBusTm[0]).split(''))[1]);
         //let lastBusMin = Number(((getBusTimeByStationResult[0].lastBusTm[0]).split(''))[2] + ((getBusTimeByStationResult[0].lastBusTm[0]).split(''))[3]);
-        let leastTm = moment(startTm).subtract(sectionTime, 'm').toString();
+        let leastTm = startTm.subtract(sectionTime, 'm').toString();
         let arriveArr = [];
         let arriveArrRes = [];
         let noticeArrRes = [];
@@ -51,7 +60,7 @@ module.exports = {
         })
     },
     subwayTime: async (startTm, stationID, wayCode, noticeMin, arriveCount, sectionTime) => {
-        let leastTm = moment(startTm).subtract(sectionTime, 'm').toString();
+        let leastTm = startTm.subtract(sectionTime, 'm').toString();
         console.log('least : ' + leastTm);
         let getSubwayArriveTimeResult = await odsayAPI.getSubwayArriveTime(stationID, wayCode);
         if (getSubwayArriveTimeResult === undefined) {
