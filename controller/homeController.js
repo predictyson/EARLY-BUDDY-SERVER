@@ -41,7 +41,7 @@ module.exports = {
             var scheduleIdx = -1;
             for(let i = 0; i<userSchedule.length; i++){
                 let scheduleDate = moment(userSchedule[i].scheduleStartTime, 'YYYY-MM-DD HH:mm:ss');
-                var currentDate = moment.now();
+                var currentDate = moment(new Date());
                 if(scheduleDate - currentDate > 0 && scheduleDate.diff(currentDate, 'day') < 8){
                     scheduleIdx = userSchedule[i].scheduleIdx;
                     break;

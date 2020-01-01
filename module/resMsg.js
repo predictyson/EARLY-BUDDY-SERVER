@@ -32,5 +32,6 @@ module.exports = {
     FIND_TRANS_FAILED : '경로에 교통수단이 없습니다',
 
     //KAKAO
-    FIND_ADDRESS_COMPLETE : '주소 찾기 성공'
+    FIND_ADDRESS_COMPLETE : '주소 찾기 성공',
+    FIND_ADDRESS_FAILED : '주소가 없습니다'
 }
