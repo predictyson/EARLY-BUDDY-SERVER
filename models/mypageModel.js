@@ -8,7 +8,6 @@ const table = 'users';
 
 module.exports = {
     changeNickname : async(userIdx, changeName)=>{
-       // const query = `UPDATE '${table}' SET userName = '${changeName} WHERE userIdx = '${userIdx}'`;
         const fields  = 'userIdx,userName';
         const questions =`?,?`;
         const values = [userIdx, userName];

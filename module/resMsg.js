@@ -3,6 +3,10 @@ module.exports = {
     INVALID_VALUE: '값이 유효하지 않습니다.',
     NO_CHANGE: '변경된 사항이 없습니다. scheduleIdx를 의심해보세요.',
 
+    // 유저
+    ALREADY_ID : "이미 사용중인 아이디입니다.",
+    MISS_MATCH_PW: "잘못된 비밀번호입니다.",
+
     FIND_PATH_COMPLETE: '경로 찾기 성공',
     FIND_PATH_FAILED: '경로 찾기 실패',
 
