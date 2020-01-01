@@ -3,6 +3,8 @@ const resMsg = require('../module/resMsg');
 const statCode = require('../module/statusCode');
 const pool = require('../module/pool');
 const schedules = require('../models/schedulesModel');
+const odsayAPI = require('../module/odsayAPI');
+const timeCalc = require('../module/timeCalc');
 var moment = require('moment');
 const alarm = require('../module/alarm');
 
@@ -15,56 +17,57 @@ module.exports = {
         let startDay = Number(body.scheduleStartTime.split(' ')[0].split('-')[2]);
         let startHour = Number(body.scheduleStartTime.split(' ')[1].split(':')[0]);
         let startMin = Number(body.scheduleStartTime.split(' ')[1].split(':')[1]);
+
         let startTime = [startYear, startMonth, startDay, startHour, startMin];
-        let isBusFirst = 0;
-        let isSubwayFirst = 0;
+        let startTm = moment().year(startYear).month(startMonth-1).date(startDay).hour(startHour).minute(startMin).toString();
         try {
             let addScheduleResult = await schedules.addSchedule(body.scheduleName, body.scheduleStartTime, body.startAddress, body.startLongitude, body.startLatitude, body.endAddress, body.endLongitude, body.endLatitude);
             let addPathsResult = await schedules.addPaths(body.path.pathType, body.path.totalTime, body.path.totalPay, body.path.totalWalkTime, body.path.transitCount);
-            
+
             for (var i = 0; i < subPath.length; i++) {
                 if (subPath[i].trafficType === 1) {
                     let stopArray = subPath[i].passStopList.stations;
-                    if (i !== 1) {
-                        let addSubwayResult = await schedules.addSubway(1, subPath[i].distance, subPath[i].sectionTime, subPath[i].stationCount, subPath[i].lane[0].subwayCode, subPath[i].startName, subPath[i].startX, subPath[i].startY, subPath[i].endName, subPath[i].endX, subPath[i].endY, stopArray, addPathsResult.insertId, stopArray[0].stationID, subPath[i].wayCode, startTime, addScheduleResult.insertId, body.noticeMin, body.arriveCount, isSubwayFirst);
-                        if (addSubwayResult != true) {
-                            throw ({ code: addSubwayResult.code, json: addSubwayResult.json });
+                    if (i === 1) {
+                        let subTime = await timeCalc.subwayTime(startTm, stopArray[0].stationID, subPath[i].wayCode, body.noticeMin, body.arriveCount, subPath[i].sectionTime);
+                        if(subTime.code !== statCode.BAD_REQUEST) {
+                            for (var k = 0; k < body.arriveCount; k++) {
+                                await schedules.addTime(moment(subTime.arriveArr[k]).format('YYYY-MM-DD HH:mm'), moment(subTime.noticeArr[k]).format('YYYY-MM-DD HH:mm'), addScheduleResult.insertId);
+                                console.log(k+1 + ' 번째 지하철 알림시간 추가 완료');
+                            }
                         }
                         else {
-                            console.log('지하철 경로 추가 완료')
+                            throw(subTime);
                         }
                     }
-                    else {
-                        isSubwayFirst = 1;
-                        let addSubwayResult = await schedules.addSubway(1, subPath[i].distance, subPath[i].sectionTime, subPath[i].stationCount, subPath[i].lane[0].subwayCode, subPath[i].startName, subPath[i].startX, subPath[i].startY, subPath[i].endName, subPath[i].endX, subPath[i].endY, stopArray, addPathsResult.insertId, stopArray[0].stationID, subPath[i].wayCode, startTime, addScheduleResult.insertId, body.noticeMin, body.arriveCount, isSubwayFirst);
-                        if (addSubwayResult != true) {
-                            throw ({ code: addSubwayResult.code, json: addSubwayResult.json });
-                        }
-                        console.log('지하철 경로+알림 추가 완료')
+                    let addSubwayResult = await schedules.addSubway(1, subPath[i].distance, subPath[i].sectionTime, subPath[i].stationCount, subPath[i].lane[0].subwayCode, subPath[i].startName, subPath[i].startX, subPath[i].startY, subPath[i].endName, subPath[i].endX, subPath[i].endY, stopArray, addPathsResult.insertId);
+                    if (addSubwayResult != true) {
+                        throw ({ code: addSubwayResult.code, json: addSubwayResult.json });
                     }
+                    console.log('지하철 경로 추가 완료')
+
                 }
                 else if (subPath[i].trafficType === 2) {
                     let stopArray = subPath[i].passStopList.stations;
-                    if (i !== 1) {
-                        let addBusResult = await schedules.addBus(2, subPath[i].distance, subPath[i].sectionTime, subPath[i].stationCount, subPath[i].startName, subPath[i].startX, subPath[i].startY, subPath[i].endName, subPath[i].endX, subPath[i].endY, subPath[i].lane[0].busNo, subPath[i].lane[0].type, stopArray, addPathsResult.insertId, startTime, addScheduleResult.insertId, body.noticeMin, body.arriveCount, isBusFirst);
+                    if(i === 1) {
+                        let busTime = await timeCalc.busTime(subPath[i].lane[0].busNo, startTm, subPath[i].startName,body.arriveCount, body.noticeMin ,subPath[i].sectionTime)
+                        if(busTime.code !== statCode.BAD_REQUEST) {
+                            for (var k = 0; k < body.arriveCount; k++) {
+                                await schedules.addTime(moment(busTime.arriveArr[k]).format('YYYY-MM-DD HH:mm'), moment(busTime.noticeArr[k]).format('YYYY-MM-DD HH:mm') , addScheduleResult.insertId);
+                                console.log(k+1 + ' 번째 버스 알림시간 추가 완료');
+                            }
+                        }
+                        else {
+                            throw(busTime);
+                        }
+                        
+                    }
+                        let addBusResult = await schedules.addBus(2, subPath[i].distance, subPath[i].sectionTime, subPath[i].stationCount, subPath[i].startName, subPath[i].startX, subPath[i].startY, subPath[i].endName, subPath[i].endX, subPath[i].endY, subPath[i].lane[0].busNo, subPath[i].lane[0].type, stopArray, addPathsResult.insertId);
                         if (addBusResult != true) {
                             throw ({ code: addBusResult.code, json: addBusResult.json });
                         }
                         else {
                             console.log('버스 경로 추가 완료')
-                        }
-                        
-                    }
-                    else {
-                        isBusFirst = 1;
-                        let addBusResult = await schedules.addBus(2, subPath[i].distance, subPath[i].sectionTime, subPath[i].stationCount, subPath[i].startName, subPath[i].startX, subPath[i].startY, subPath[i].endName, subPath[i].endX, subPath[i].endY, subPath[i].lane[0].busNo, subPath[i].lane[0].type, stopArray, addPathsResult.insertId, startTime, addScheduleResult.insertId, body.noticeMin, body.arriveCount, isBusFirst);
-                        if (addBusResult != true) {
-                            throw ({ code: addBusResult.code, json: addBusResult.json });
-                        }
-                        else {
-                            console.log('버스 경로+알림 추가 완료')
-                        }
-                    }
+                        }                
                 }
                 else {
                     let addWalkResult = await schedules.addWalk(3, subPath[i].distance, subPath[i].sectionTime, addPathsResult.insertId);
@@ -81,15 +84,13 @@ module.exports = {
             }
             await schedules.addUsersSchedules(body.userIdx, addScheduleResult.insertId);
             await schedules.addSchedulesPaths(addScheduleResult.insertId, addPathsResult.insertId);
-            const deviceToken = await schedules.getDeviceToken(body.userIdx);
-            // noticeTime = moment(arriveArr[(arriveArr.length) - l]).subtract(noticeMin, 'minutes').format('YYYY-MM-DD HH:mm:ss')
-            // alarm.setSchedule(deviceToken, );
             res.status(statCode.OK).send(resUtil.successTrue(resMsg.ADD_SCHEDULE_SUCCESS));
         }
         catch (exception) {
             console.log(exception);
             res.status(exception.code).send(exception.json);
         }
+
     },
     getSchedule: async (req, res) => {
         let scheduleIdx = req.query.scheduleIdx;
