@@ -2,7 +2,7 @@ const poolPromise = require('../config/dbConfig');
 
 
 module.exports = { // 두 개의 메소드 module화
-    queryParam_None: async(...args) => { // (...args) expression은 arrow function 사
+    queryParam_None: async(...args) => { // (...args) expression은 arrow function 사용
         const query = args[0];
         let result;
         const pool = await poolPromise;
@@ -16,7 +16,6 @@ module.exports = { // 두 개의 메소드 module화
             pool.releaseConnection(connection); // waterfall 에서는 connection.release()를 사용했지만, 이 경우 pool.releaseConnection(connection) 을 해준다.
             return result;
         }
-
     },
     queryParam_Arr: async(...args) => {
         const query = args[0];

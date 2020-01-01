@@ -27,7 +27,6 @@ module.exports = {
                         json: responseUtil.successFalse(resMsg.MISS_MATCH_PW)
                     };
                 }
-                const {token, refreshToken}= jwt.sign(userResult[0].userPw);
                 return{
                     code: statusCode.OK,
                     json:responseUtil.successTrue(resMsg.SIGN_IN_SUCCESS),
@@ -39,11 +38,11 @@ module.exports = {
             });            
 
     },
-    signup: async ({userId,userName,userBirth,salt,password}) => {
+    signup: async ({userId,salt,password}) => {
         const table = 'users';
-        const fields = 'userName, userId, userPw, salt'
-        const questions = `?, ?, ?, ?`;
-        const values = [userName, userId, password , salt ];
+        const fields = ' userId, userPw, salt'
+        const questions = ` ?, ?, ?`;
+        const values = [userId, password , salt ];
         try {
             const result = await pool.queryParam_Arr(`INSERT INTO ${table}(${fields}) VALUES(${questions})`, values);
             if (result.code && result.json) return result;
@@ -58,6 +57,31 @@ module.exports = {
                 return {
                     code: statusCode.BAD_REQUEST,
                     json: responseUtil.successFalse(resMsg.ALREADY_ID)
+                };
+            }
+            console.log(err);
+            throw err;
+        }
+    },
+    setUserName : async({userName})=>{
+        const table ='users';
+        const fields = 'userName';
+        const questions =`?`;
+        const values=  [userName];
+        try{
+            const result = await pool.queryParam_Arr(`INSERT INTO ${table}(${fields}) VALUES(${questions})`, values)
+            if (result.code && result.json) return result;
+            const userName = result.insertId;
+            return {
+                code: statusCode.OK,
+                json: responseUtil.successTrue(resMsg.SET_NAME_SUCCESS, userName)
+            };
+        } catch (err) {
+            if (err.errno == 1062) {
+                console.log(err.errno, err.code);
+                return {
+                    code: statusCode.BAD_REQUEST,
+                    json: responseUtil.successFalse(resMsg.ALREADY_NAME)
                 };
             }
             console.log(err);
