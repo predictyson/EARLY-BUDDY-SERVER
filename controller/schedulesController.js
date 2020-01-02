@@ -12,9 +12,10 @@ module.exports = {
     addSchedule: async (req, res) => {
         let body = req.body;
         let subPath = body.path.subPath;
-        let startTm = moment(body.scheduleStartTime, 'YYYY-MM-DD HH:mm')
+        let startTime = body.scheduleStartDay + ' ' + body.scheduleStartTime;
+        let startTm = moment(startTime, 'YYYY-MM-DD HH:mm')
         try {
-            let addScheduleResult = await schedules.addSchedule(body.scheduleName, body.scheduleStartTime, body.startAddress, body.startLongitude, body.startLatitude, body.endAddress, body.endLongitude, body.endLatitude);
+            let addScheduleResult = await schedules.addSchedule(body.scheduleName, startTime, body.startAddress, body.startLongitude, body.startLatitude, body.endAddress, body.endLongitude, body.endLatitude, body.noticeMin, body.arriveCount);
             let addPathsResult = await schedules.addPaths(body.path.pathType, body.path.totalTime, body.path.totalPay, body.path.totalWalkTime, body.path.transitCount);
 
             for (var i = 0; i < subPath.length; i++) {
@@ -117,9 +118,9 @@ module.exports = {
 
         let body = req.body;
         let subPath = body.path.subPath;
-        let startTm = moment(body.scheduleStartTime, 'YYYY-MM-DD HH:mm')
+        let startTm = moment(startTime, 'YYYY-MM-DD HH:mm')
         try {
-            let updateScheduleResult = await schedules.updateSchedule(body.scheduleName, body.scheduleStartTime, body.startAddress, body.startLongitude, body.startLatitude, body.endAddress, body.endLongitude, body.endLatitude, scheduleIdx);
+            let updateScheduleResult = await schedules.updateSchedule(body.scheduleName, startTime, body.startAddress, body.startLongitude, body.startLatitude, body.endAddress, body.endLongitude, body.endLatitude, scheduleIdx);
             if (body.path !== undefined) {
                 let updatePathsResult = await schedules.updatePaths(body.path.pathType, body.path.totalTime, body.path.totalPay, body.path.totalWalkTime, body.path.transitCount);
                 for (var i = 0; i < subPath.length; i++) {
